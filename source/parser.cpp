@@ -1,11 +1,13 @@
 #include <assert.h>
-#include <stdio.h>
+#include <string.h>
+#include <math.h>
 #include "parser.hpp"
 
 
 int getE();         ///< E::=T{[+-]T}*
 int getT();         ///< T::=D{[*/]D}*
-int getD();         ///< D::=P{'^'P}*
+int getD();         ///< D::=U{'^'U}*
+int getU();         ///< U::=['sin''cos''ln']P|P
 int getP();         ///< P::='('E')'|N
 int getN();         ///< N::=['0'-'9']
 
@@ -59,15 +61,36 @@ int getT() {
 
 
 int getD() {
-    int value = getP();
+    int value = getU();
 
     while(*s == '^') {
         s++;
-        int tmp = getP(), base = value;
+        int tmp = getU(), base = value;
 
         for(value = 1; tmp > 0; tmp--) value *= base;
     }
 
+    return value;
+}
+
+
+int getU() {
+    int value = 0;
+
+    if (strncmp(s, "sin", 3) == 0) {
+        s+=3;
+        value = (int) sin(getP());
+    }
+    else if (strncmp(s, "cos", 3) == 0) {
+        s+=3;
+        value = (int) cos(getP());
+    }
+    else if (strncmp(s, "ln", 2) == 0) {
+        s+=2;
+        value = (int) log(getP());
+    }
+    else value = getP();
+    
     return value;
 }
 
