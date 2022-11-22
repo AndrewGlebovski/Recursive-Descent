@@ -4,7 +4,8 @@
 
 
 int getE();         ///< E::=T{[+-]T}*
-int getT();         ///< T::=P{[*/]P}*
+int getT();         ///< T::=D{[*/]D}*
+int getD();         ///< D::=P{'^'P}*
 int getP();         ///< P::='('E')'|N
 int getN();         ///< N::=['0'-'9']
 
@@ -41,16 +42,30 @@ int getE() {
 
 
 int getT() {
-    int value = getP();
+    int value = getD();
 
     while(*s == '*' || *s == '/') {
         char op = *s; 
 
         s++;
-        int tmp = getP();
+        int tmp = getD();
 
         if (op == '*') value *= tmp;
         else value /= tmp;
+    }
+
+    return value;
+}
+
+
+int getD() {
+    int value = getP();
+
+    while(*s == '^') {
+        s++;
+        int tmp = getP(), base = value;
+
+        for(value = 1; tmp > 0; tmp--) value *= base;
     }
 
     return value;
